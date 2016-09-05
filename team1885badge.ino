@@ -17,6 +17,7 @@
 #define MAGENTA         0xF81F
 #define YELLOW          0xFFE0  
 #define WHITE           0xFFFF
+#define PURPLE          0x8A2BE2
  
 // to draw images from the SD card, we will share the hardware SPI interface
 Adafruit_SSD1351 tft = Adafruit_SSD1351(my_cs, my_dc, my_rst);
@@ -166,6 +167,8 @@ unsigned long startTime, endTime; // For calculating FPS.
 unsigned int frames;
 uint16_t currentColor = 0;
 boolean iconOrText = true;
+const int width = 5; // width of the marquee display (in characters)
+String text = "Team 1885: ILite Robotics..."; // sample text
 
 void setup() {
   
@@ -173,34 +176,34 @@ void setup() {
   tft.begin();
   tft.setTextWrap(false);
   tft.setTextSize(5); // large letters
-  tft.setRotation(1); // horizontal display
+  tft.setRotation(4); // horizontal display
   SerialUSB.begin(9600);
   cls(BLACK);
 }
 
 void loop() {
-//  // put your main code here, to run repeatedly:
-//  SerialUSB.print("Color: ");
-//  SerialUSB.print(currentColor);
-//  SerialUSB.println("");
-//  cls(currentColor++);
 
   if(iconOrText) {
-    tft.drawBitmap(0, 0, myBitmap, 127,127,WHITE);
+    tft.fillScreen(BLACK);
+    SerialUSB.println("Inside of icon drawing");
+    tft.drawBitmap(0, 0, myBitmap, 127,127,rgb565_from_triplet(138,43,226));
     iconOrText = false;
-    delay(500);
+    delay(5000);
+    tft.fillScreen(BLACK);
   } else {
-    
-    String text = "Team 1885: ILite Robotics..."; // sample text
-    const int width = 5; // width of the marquee display (in characters)
-
+    SerialUSB.println("Inside of scrolling text");
     // Loop once through the string
     for (int offset = 0; offset < text.length(); offset++) {
-      tft.fillScreen(BLACK);
+      SerialUSB.print("Inside of offset for loop: offset=");
+      SerialUSB.println(offset);
+      
       // Construct the string to display for this iteration
       String t = "";
-      for (int i = 0; i < width; i++)
+      for (int i = 0; i < width; i++) {
+        SerialUSB.print("Inside of inner for loop: i=");
+        SerialUSB.println(i);
         t += text.charAt((offset + i) % text.length());
+      }
 
       // Print the string for this iteration
       tft.setCursor(0, tft.height()/2-10); // display will be halfway down screen
@@ -208,6 +211,28 @@ void loop() {
 
       // Short delay so the text doesn't move too fast
       delay(200);
+
+      int16_t  x1, y1;
+      uint16_t w, h;
+      char testChar[t.length()];
+      t.toCharArray(testChar, t.length());
+ 
+      tft.getTextBounds(testChar, 0, tft.height()/2-10, &y1, &y1, &w, &h);
+      
+      tft.fillRect(x1,y1,w,h,BLACK);
+      
+      
+      
     }
+    SerialUSB.println("DONE!");
+      iconOrText = true;
   }
+}
+
+uint16_t rgb565_from_triplet(uint8_t red, uint8_t green, uint8_t blue)
+{
+  red   >>= 3;
+  green >>= 2;
+  blue  >>= 3;
+  return (red << 11) | (green << 5) | blue;
 }
