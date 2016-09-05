@@ -217,9 +217,19 @@ void loop() {
       char testChar[t.length()];
       t.toCharArray(testChar, t.length());
  
-      tft.getTextBounds(testChar, 0, tft.height()/2-10, &y1, &y1, &w, &h);
+      tft.getTextBounds(testChar, 0, tft.height()/2-10, &x1, &y1, &w, &h);
+      SerialUSB.print("Text bounds: x1= ");
+      SerialUSB.print(x1);
+      SerialUSB.print(", y1=");
+      SerialUSB.print(y1);
+      SerialUSB.print(", w= ");
+      SerialUSB.print(w);
+      SerialUSB.print(", h= ");
+      SerialUSB.print(h);
+      SerialUSB.println("");
       
-      tft.fillRect(x1,y1,w,h,BLACK);
+//      tft.fillRect(x1,y1,w,h,BLACK);
+      fastRect(x1,y1,127,y1+h,BLACK);
       
       
       
