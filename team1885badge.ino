@@ -165,11 +165,15 @@ uint8_t bmpDepth, bmpImageoffset;
 unsigned long startTime, endTime; // For calculating FPS.
 unsigned int frames;
 uint16_t currentColor = 0;
+boolean iconOrText = true;
 
 void setup() {
   
   pinMode(13, INPUT_PULLUP); // Illuminate status LED.
   tft.begin();
+  tft.setTextWrap(false);
+  tft.setTextSize(5); // large letters
+  tft.setRotation(1); // horizontal display
   SerialUSB.begin(9600);
   cls(BLACK);
 }
@@ -180,6 +184,30 @@ void loop() {
 //  SerialUSB.print(currentColor);
 //  SerialUSB.println("");
 //  cls(currentColor++);
-   
-  tft.drawBitmap(0, 0, myBitmap, 127,127,WHITE);
+
+  if(iconOrText) {
+    tft.drawBitmap(0, 0, myBitmap, 127,127,WHITE);
+    iconOrText = false;
+    delay(500);
+  } else {
+    
+    String text = "Team 1885: ILite Robotics..."; // sample text
+    const int width = 5; // width of the marquee display (in characters)
+
+    // Loop once through the string
+    for (int offset = 0; offset < text.length(); offset++) {
+      tft.fillScreen(BLACK);
+      // Construct the string to display for this iteration
+      String t = "";
+      for (int i = 0; i < width; i++)
+        t += text.charAt((offset + i) % text.length());
+
+      // Print the string for this iteration
+      tft.setCursor(0, tft.height()/2-10); // display will be halfway down screen
+      tft.print(t);
+
+      // Short delay so the text doesn't move too fast
+      delay(200);
+    }
+  }
 }
